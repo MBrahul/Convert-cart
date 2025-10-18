@@ -2,6 +2,8 @@ import express from 'express'
 import sequelize from './db.js';
 import cors from 'cors';
 import {router as productRouter} from './routes/product.js';
+import cron from "node-cron";
+import { fetchAndSaveProducts } from "./src/fetchProducts.js";
 
 const app = express();
 
@@ -17,6 +19,26 @@ await sequelize.sync({ alter: true });
 app.use('/products',productRouter);
 
 
-app.listen(PORT, () => console.log('Server running on port', PORT));
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 5500;
+  app.listen(PORT, () => console.log('Server running on port', PORT));
+}
+
+
+
+// schedule periodic ingestion - every hour
+cron.schedule('0 * * * *', async () => {
+  console.log('Running scheduled product ingestion...');
+  try {
+    await fetchAndSaveProducts();
+    console.log(' Product ingestion complete');
+  } catch (err) {
+    console.error('Ingestion failed:', err.message);
+  }
+});
+
+
+
+export default app;
 
 

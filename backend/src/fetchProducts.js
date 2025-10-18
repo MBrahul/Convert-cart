@@ -19,6 +19,7 @@ export async function fetchAndSaveProducts() {
     );
 
     let count = 0;
+
     for (const p of products) {
       await Product.upsert({
         id: p.id,
@@ -30,17 +31,19 @@ export async function fetchAndSaveProducts() {
         tags: p.tags?.map(t => t.name) || [],
         on_sale: p.on_sale,
         created_at: p.date_created,
+        brand: p.brands?.map(b => b.name).join(', ') || null,
+        rating: p.average_rating ? parseFloat(p.average_rating) : 0.0,
       });
       count++;
     }
 
-    console.log(`✅ ${count} products saved to MySQL`);
+    console.log(`${count} products saved to MySQL`);
   } catch (err) {
-    console.error("❌ Error while fetching products:", err.message);
+    console.error("Error while fetching products:", err.message);
   }
 }
 
-// allowing running manually with `node src/fetchProducts.js`
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   fetchAndSaveProducts().then(() => process.exit(0));
 }
