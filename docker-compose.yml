@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8
+    container_name: mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: woocommerce_products
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: ./backend
+    container_name: backend_container
+    restart: always
+    ports:
+      - "5500:5500"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      DB_NAME: woocommerce_products
+      BASE_URL: https://wp-multisite.convertcart.com/wp-json/wc/v3/products
+      KEY: ck_af82ae325fbee1c13f31eb26148f4dea473b0f77
+      SECRET: cs_2d8cc467c5b91a80f5ed18dd3c282ee8299c9445
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    container_name: frontend_container
+    restart: always
+    ports:
+      - "5173:80" # frontend exposed via nginx
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: http://backend:5500 # internal Docker network URL
+
+volumes:
+  mysql_data:

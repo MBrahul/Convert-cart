@@ -37,6 +37,17 @@ cron.schedule('0 * * * *', async () => {
   }
 });
 
+// run ingestion immediately on startup
+(async () => {
+  console.log("Running initial product ingestion on startup...");
+  try {
+    await fetchAndSaveProducts();
+    console.log("Initial product ingestion complete");
+  } catch (err) {
+    console.error("Initial ingestion failed:", err.message);
+  }
+})();
+
 
 
 export default app;

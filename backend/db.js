@@ -5,8 +5,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const connection = await mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
 });
 await connection.query('CREATE DATABASE IF NOT EXISTS woocommerce_products');
@@ -14,8 +14,8 @@ await connection.end();
 console.log('Database ensured.');
 
 
-const sequelize = new Sequelize('woocommerce_products', 'root', process.env.DB_PASSWORD, {
-    host: 'localhost',
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
+    host: process.env.DB_HOST,
     dialect: 'mysql',
     logging: false,
 });
