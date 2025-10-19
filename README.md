@@ -34,7 +34,7 @@ git clone [https://github.com/your-username/product-segmentation.git](https://gi
 cd backend
 npm install
 
-npm start
+node index.js
 
 docker-compose up --build
 
