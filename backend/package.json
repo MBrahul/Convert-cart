@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start":"node index.js",
+    "start": "node index.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
   "author": "MBrahul",
@@ -18,7 +18,9 @@
     "mysql2": "^3.15.2",
     "node-cron": "^4.2.1",
     "nodemon": "^3.1.10",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.3",

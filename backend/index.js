@@ -1,4 +1,5 @@
 import express from 'express'
+import swaggerDocs from "./swagger.js";
 import sequelize from './db.js';
 import cors from 'cors';
 import {router as productRouter} from './routes/product.js';
@@ -53,3 +54,4 @@ cron.schedule('0 * * * *', async () => {
 export default app;
 
 
+swaggerDocs(app); 

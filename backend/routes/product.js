@@ -2,10 +2,54 @@ import express from 'express';
 import Product from '../models/Product.js';
 import { Op } from 'sequelize';
 
-
 export const router = express.Router();
 
-// api to get all all products
+/**
+ * @swagger
+ * tags:
+ *   name: Products
+ *   description: API endpoints related to product management
+ */
+
+/**
+ * @swagger
+ * /api/products:
+ *   get:
+ *     summary: Get all products
+ *     tags: [Products]
+ *     responses:
+ *       200:
+ *         description: Successfully fetched all products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       name:
+ *                         type: string
+ *                         example: "Product Name"
+ *                       price:
+ *                         type: number
+ *                         example: 499.99
+ *                       category:
+ *                         type: string
+ *                         example: "Electronics"
+ *       500:
+ *         description: Internal Server Error
+ */
+
+// API to get all products
 router.get('/', async (req, res) => {
   try {
     const products = await Product.findAll();
@@ -21,12 +65,64 @@ router.get('/', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/products/segments/evaluate:
+ *   post:
+ *     summary: Evaluate and filter products based on given rules
+ *     tags: [Products]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               rules:
+ *                 type: string
+ *                 example: |
+ *                   price > 100
+ *                   rating >= 4
+ *                   category = "Electronics"
+ *     responses:
+ *       200:
+ *         description: Successfully evaluated segment and returned filtered products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 count:
+ *                   type: integer
+ *                   example: 5
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       name:
+ *                         type: string
+ *                         example: "Product Name"
+ *                       price:
+ *                         type: number
+ *                         example: 499.99
+ *       400:
+ *         description: Invalid input or missing fields in rules
+ *       500:
+ *         description: Internal Server Error during segment evaluation
+ */
 
 router.post('/segments/evaluate', async (req, res) => {
   try {
     const { rules } = req.body;
 
-    // baasic validation
+    // basic validation
     if (!rules || typeof rules !== 'string') {
       return res.status(400).json({
         status: false,
@@ -42,7 +138,6 @@ router.post('/segments/evaluate', async (req, res) => {
       });
     }
 
-    // allowed fields and operator
     const allowedFields = [
       'price', 'stock_status', 'stock_quantity', 'category',
       'on_sale', 'brand', 'rating'
@@ -51,12 +146,10 @@ router.post('/segments/evaluate', async (req, res) => {
 
     const where = {};
 
-    // parse each rule line
     for (const line of lines) {
       const [field, operator, ...rest] = line.split(' ').map(x => x.trim());
       const valueRaw = rest.join(' ').replace(/['"]/g, '');
 
-     
       if (!allowedFields.includes(field)) {
         return res.status(400).json({
           status: false,
@@ -64,7 +157,6 @@ router.post('/segments/evaluate', async (req, res) => {
         });
       }
 
-     
       if (!allowedOperators.includes(operator)) {
         return res.status(400).json({
           status: false,
@@ -72,7 +164,6 @@ router.post('/segments/evaluate', async (req, res) => {
         });
       }
 
-    
       if (!valueRaw) {
         return res.status(400).json({
           status: false,
@@ -80,19 +171,15 @@ router.post('/segments/evaluate', async (req, res) => {
         });
       }
 
-     
       let value = valueRaw;
       if (!isNaN(valueRaw) && valueRaw.trim() !== '') {
         value = parseFloat(valueRaw);
       }
 
-     
       switch (operator) {
         case '=':
           if (typeof value === 'number') {
-            where[field] = {
-              [Op.between]: [value - 0.01, value + 0.01] 
-            };
+            where[field] = { [Op.between]: [value - 0.01, value + 0.01] };
           } else {
             where[field] = value;
           }
@@ -114,7 +201,6 @@ router.post('/segments/evaluate', async (req, res) => {
           break;
       }
     }
-
 
     const result = await Product.findAll({ where });
 
