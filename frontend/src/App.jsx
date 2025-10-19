@@ -39,7 +39,7 @@ function App() {
     try {
       setProducts([]);
       setIsLoading(true);
-      const data = await fetch("http://localhost:5500/products/segments/evaluate", {
+      const data = await fetch(`${BASE_URL}/products/segments/evaluate`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
